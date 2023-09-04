@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Patterson.model;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing.Imaging;
 
 namespace Patterson.service
 {
     internal interface IImageProcessorService
     {
-        void ProcessImage(string imagePath);
+        List<PeakData> ProcessImage(Image image, double minTheta, double maxTheta);
 
         Image RenderImage(Image prescaledImage);
+
+        Image test(Image image);
     }
 }

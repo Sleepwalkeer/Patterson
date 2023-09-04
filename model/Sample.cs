@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace Patterson.model
 {
-    internal class Sample
+    public class Sample
     {
-        public List<PeakData> preExposurePeaksData { get; set; }
-        public List<PeakData> postExposurePeaksData { get; set; }
-        public List<double> preExposurePs { get; set; }
-        public List<double> postExposurePs { get; set; }
+        public Sample(List<PeakData> peaksData)
+        {
+            this.peaksData = peaksData;
+        }
+
+        public String element { get; set; }
+        public List<PeakData> peaksData { get; set; }
+        public List<double> ps { get; set; }
     }
 }

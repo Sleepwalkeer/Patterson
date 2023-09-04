@@ -13,12 +13,12 @@ namespace Patterson.service.implementation
     {
 
 
-        public void Execute(Sample sample)
+        public Sample Execute(List<PeakData> peaks, double lambda)
         {
-            CalculateParams(sample.preExposurePeaksData);
-           // CalculateParams(sample.postExposurePeaksData);
-            sample.preExposurePs = CalculatePs(sample.preExposurePeaksData);
-          //  sample.postExposurePs = CalculatePs(sample.postExposurePeaksData);
+            Sample sample = new Sample(peaks);
+            CalculateParams(sample.peaksData, lambda);
+            sample.ps = CalculatePs(sample.peaksData);
+            return sample;
             
         }
 
@@ -38,24 +38,21 @@ namespace Patterson.service.implementation
             return ps;
         }
 
-        private void CalculateParams(List<PeakData> peaksData)
+        private void CalculateParams(List<PeakData> peaksData, double lambda)
         {
             CalculateSinThetta(peaksData);
-            CalculateDn(peaksData);
+            CalculateDn(peaksData, lambda);
             CalculatePlg(peaksData);
             CalculateFsquared(peaksData);
             CalculateInverseDs(peaksData);
         }
 
-        private void CalculateDn(List<PeakData> peaksData)
+        private void CalculateDn(List<PeakData> peaksData, double lambda)
         {
-            //TEST STUB
-            peaksData[0].dn = 2.545997017;
-            peaksData[1].dn = 2.338227298;
-            peaksData[2].dn = 2.281306682;
-            peaksData[3].dn = 1.727690374;
-            peaksData[4].dn = 1.378579131;
-            peaksData[5].dn = 1.331590563;
+            foreach (var peak in peaksData)
+            {
+                peak.dn = lambda / 2 / peak.sinThetta;
+            }
         }
 
         private void CalculateInverseDs(List<PeakData> peaksData)

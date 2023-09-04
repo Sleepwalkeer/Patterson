@@ -9,6 +9,6 @@ namespace Patterson.service
 {
     internal interface IPattersonFunctionService
     {
-        void Execute(Sample sampl);
+        Sample Execute(List<PeakData> peaks, double lambda);
     }
 }

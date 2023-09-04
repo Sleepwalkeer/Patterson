@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Patterson.model
 {
-    internal class PeakData
+    public class PeakData
     {
         public double intensity { get; set; }
         public double theta { get; set; }
