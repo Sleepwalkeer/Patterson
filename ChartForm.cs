@@ -67,6 +67,7 @@ namespace Patterson
         private void button1_Click(object sender, EventArgs e)
         {
             chart1.Series.Clear();
+            isPostPicUploaded = false;
             startForm.UploadNewSamplePicButtonHandler();
             this.Hide();
         }
@@ -87,26 +88,28 @@ namespace Patterson
             {
                 button3.Visible = true;
             }
+            else
+            {
+                button3.Visible = false;
+            }
 
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-                // Load database connection properties from your property file
                 string host = PropertyReader.GetProperty("Host");
                 int port = int.Parse(PropertyReader.GetProperty("Port"));
                 string database = PropertyReader.GetProperty("Database");
                 string username = PropertyReader.GetProperty("Username");
                 string password = PropertyReader.GetProperty("Password");
 
-                // Construct the connection string
                 string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
 
                 try
                 {
                     using (var connection = new NpgsqlConnection(connectionString))
                     {
-                        connection.Open(); // Attempt to open the database connection
+                        connection.Open();
 
                         if (connection.State == System.Data.ConnectionState.Open)
                         {
@@ -120,7 +123,7 @@ namespace Patterson
                 }
                 catch (NpgsqlException ex)
                 {
-                    Console.WriteLine($"Error: {ex.Message}");
+                    
                 }
             }
         }

@@ -7,10 +7,8 @@ namespace Patterson.service
 {
     internal interface IImageProcessorService
     {
-        List<PeakData> ProcessImage(Image image, double minTheta, double maxTheta);
+        List<PeakData> ProcessImage(double minTheta, double maxTheta);
 
         Image RenderImage(Image prescaledImage);
-
-        Image test(Image image);
     }
 }

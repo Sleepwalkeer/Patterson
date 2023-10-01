@@ -21,5 +21,13 @@ namespace Patterson.model
             this.intensity = intensity;
             this.theta = thetta;
         }
+
+        public static List<PeakData> SortByTheta(List<PeakData> peakList)
+        {
+            // Use LINQ to sort the list by the Theta field
+            List<PeakData> sortedList = peakList.OrderBy(peak => peak.theta).ToList();
+
+            return sortedList;
+        }
     }
 }

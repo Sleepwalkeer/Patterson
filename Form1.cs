@@ -5,24 +5,17 @@ using Patterson.service;
 using Patterson.service.implementation;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Patterson
 {
     public partial class Form1 : Form
     {
-        private IPattersonFunctionRepository repository;
+        private IPattersonFunctionRepository repository = new PattersonFunctionRepository();
         private ChartForm chartForm = new ChartForm();
         private readonly IImageProcessorService imageProcessorService = new ImageProcessorService();
-        private readonly PattersonFunctionService pattersonFunctionService = new PattersonFunctionService();
+        private readonly IPattersonFunctionService pattersonFunctionService = new PattersonFunctionService();
         public Form1()
         {
             InitializeComponent();
@@ -35,20 +28,14 @@ namespace Patterson
             try
             {
                 Image image = UploadPicture();
-                //DisplayPicture(image);
-                pictureBox.Image = image;
+                pictureBox.Image = imageProcessorService.RenderImage(image);
                 execute.Visible = true;
-            }
+        }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occured while uploading the picture. Please, try again or choose another picture.");
+                MessageBox.Show("An error occured while uploading the picture. Please, try again or choose another picture."  + ex);
             }
-        }
-
-        private void DisplayPicture(Image image)
-        {
-            pictureBox.Image = imageProcessorService.RenderImage(image);
-        }
+}
 
         private Image UploadPicture()
         {
@@ -60,8 +47,6 @@ namespace Patterson
                     string imagePath = openFileDialog.FileName;
 
                     Image emfImage = Image.FromFile(imagePath);
-                    return imageProcessorService.test(emfImage);
-
                     return Image.FromFile(imagePath);
                 }
                 return null;
@@ -99,29 +84,29 @@ namespace Patterson
             {
                 double minTheta = thetas.Value.minTheta;
                 double maxTheta = thetas.Value.maxTheta;
-                //peaks = imageProcessorService.ProcessImage(minTheta, maxTheta);
-                peaks = new List<PeakData>();
-                PeakData peak1 = new PeakData(14.6766, 35.25);
-                PeakData peak2 = new PeakData(164.0836, 38.5);
-                PeakData peak3 = new PeakData(20.4399, 39.5);
-                PeakData peak4 = new PeakData(40.0695, 53);
-                PeakData peak5 = new PeakData(10.5444, 68);
-                PeakData peak6 = new PeakData(58.2954, 70.75);
-                peaks.Add(peak1);
-                peaks.Add(peak2);
-                peaks.Add(peak3);
-                peaks.Add(peak4);
-                peaks.Add(peak5);
-                peaks.Add(peak6);
+                peaks = imageProcessorService.ProcessImage(minTheta, maxTheta);
+                //peaks = new List<PeakData>();
+                //PeakData peak1 = new PeakData(14.6766, 35.25);
+                //PeakData peak2 = new PeakData(164.0836, 38.5);
+                //PeakData peak3 = new PeakData(20.4399, 39.5);
+                //PeakData peak4 = new PeakData(40.0695, 53);
+                //PeakData peak5 = new PeakData(10.5444, 68);
+                //PeakData peak6 = new PeakData(58.2954, 70.75);
+                //peaks.Add(peak1);
+                //peaks.Add(peak2);
+                //peaks.Add(peak3);
+                //peaks.Add(peak4);
+                //peaks.Add(peak5);
+                //peaks.Add(peak6);
                 Sample sample = pattersonFunctionService.Execute(peaks, lambda);
                 sample.element = comboBox1.SelectedItem.ToString();
                 chartForm.Run(sample, this);
                 //DON't FORGET COMBOBOX
                 //SEND TO DATABASE AND TO CHART FORM
             }
-            else
+            else if (comboBox1.SelectedIndex == 0)
             {
-                return;
+                MessageBox.Show("You haven't selected the sample element");
             }
         }
 
