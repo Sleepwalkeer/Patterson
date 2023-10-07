@@ -22,15 +22,16 @@ namespace Patterson
             PostInit();
         }
 
-        public void PlotChart(Sample sample) {
+        public void PlotChart(Sample sample)
+        {
 
             List<double> ps = sample.ps;
 
 
-            Series series = new Series(sample.element + " pre Ps");
+            Series series = new Series(sample.experiment.Element.Name + " pre Ps");
             if (isPostPicUploaded)
             {
-                series = new Series(sample.element + " post Ps")
+                series = new Series(sample.experiment.Element.Name + " post Ps")
                 {
                     Color = Color.Red
                 };
@@ -79,7 +80,8 @@ namespace Patterson
             this.Hide();
         }
 
-        public void Run(Sample sample, Form1 callbackForm) {
+        public void Run(Sample sample, Form1 callbackForm)
+        {
             this.startForm = callbackForm;
             PlotChart(sample);
             this.Show();
@@ -94,37 +96,5 @@ namespace Patterson
             }
 
         }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-                string host = PropertyReader.GetProperty("Host");
-                int port = int.Parse(PropertyReader.GetProperty("Port"));
-                string database = PropertyReader.GetProperty("Database");
-                string username = PropertyReader.GetProperty("Username");
-                string password = PropertyReader.GetProperty("Password");
-
-                string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
-
-                try
-                {
-                    using (var connection = new NpgsqlConnection(connectionString))
-                    {
-                        connection.Open();
-
-                        if (connection.State == System.Data.ConnectionState.Open)
-                        {
-                            MessageBox.Show("Connected to the database successfully.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Failed to connect to the database.");
-                        }
-                    }
-                }
-                catch (NpgsqlException ex)
-                {
-                    
-                }
-            }
-        }
     }
+}

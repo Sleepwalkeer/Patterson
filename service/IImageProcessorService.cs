@@ -1,7 +1,6 @@
 ﻿using Patterson.model;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace Patterson.service
 {

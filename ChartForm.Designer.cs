@@ -84,16 +84,6 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(1151, 199);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(105, 49);
-            this.button4.TabIndex = 4;
-            this.button4.Text = "TEST DB";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
             // ChartForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);

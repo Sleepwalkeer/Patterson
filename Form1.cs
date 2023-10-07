@@ -1,6 +1,4 @@
 ﻿using Patterson.model;
-using Patterson.repository;
-using Patterson.repository.implementation;
 using Patterson.service;
 using Patterson.service.implementation;
 using System;
@@ -12,15 +10,15 @@ namespace Patterson
 {
     public partial class Form1 : Form
     {
-        private IPattersonFunctionRepository repository = new PattersonFunctionRepository();
         private ChartForm chartForm = new ChartForm();
         private readonly IImageProcessorService imageProcessorService = new ImageProcessorService();
         private readonly IPattersonFunctionService pattersonFunctionService = new PattersonFunctionService();
+        private bool isPostExposure = false;
+        private Experiment currentExperiment;
         public Form1()
         {
             InitializeComponent();
-            repository = new PattersonFunctionRepository();
-            repository.savePeaks();
+
         }
 
         private void uploadPictureButton_Click(object sender, EventArgs e)
@@ -28,14 +26,17 @@ namespace Patterson
             try
             {
                 Image image = UploadPicture();
-                pictureBox.Image = imageProcessorService.RenderImage(image);
-                execute.Visible = true;
-        }
+                if (image != null)
+                {
+                    pictureBox.Image = imageProcessorService.RenderImage(image);
+                    execute.Visible = true;
+                }
+            }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occured while uploading the picture. Please, try again or choose another picture."  + ex);
+                MessageBox.Show("An error occured while uploading the picture. Please, try again or choose another picture.");
             }
-}
+        }
 
         private Image UploadPicture()
         {
@@ -80,7 +81,7 @@ namespace Patterson
 
             List<PeakData> peaks;
 
-            if (thetas.HasValue && lambda > 0 && comboBox1.SelectedIndex >= 0)
+            if (thetas.HasValue && lambda != -1 && comboBox1.SelectedIndex >= 0 && !string.IsNullOrEmpty(textBox5.Text))
             {
                 double minTheta = thetas.Value.minTheta;
                 double maxTheta = thetas.Value.maxTheta;
@@ -98,19 +99,38 @@ namespace Patterson
                 //peaks.Add(peak4);
                 //peaks.Add(peak5);
                 //peaks.Add(peak6);
-                Sample sample = pattersonFunctionService.Execute(peaks, lambda);
-                sample.element = comboBox1.SelectedItem.ToString();
+
+                if (currentExperiment == null)
+                {
+                    Element element = pattersonFunctionService.FindElementByName(comboBox1.SelectedItem.ToString());
+                    Experiment experiment = pattersonFunctionService.CreateNewExperiment(element);
+                    experiment.Description = textBox5.Text;
+                    currentExperiment = experiment;
+                }
+                else
+                {
+                    foreach (var peak in peaks)
+                    {
+                        peak.IsUvExposed = true;
+                    }
+                }
+
+                Sample sample = pattersonFunctionService.Execute(peaks, lambda, currentExperiment, isPostExposure);
+                pattersonFunctionService.SaveData(sample);
                 chartForm.Run(sample, this);
-                //DON't FORGET COMBOBOX
-                //SEND TO DATABASE AND TO CHART FORM
             }
-            else if (comboBox1.SelectedIndex == 0)
+            else if (comboBox1.SelectedIndex < 0)
             {
                 MessageBox.Show("You haven't selected the sample element");
             }
+
+            else if (string.IsNullOrEmpty(textBox5.Text))
+            {
+                MessageBox.Show("You haven't entered the experiments' description.");
+            }
         }
 
-            private double GetLambda()
+        private double GetLambda()
         {
             if (!Lambdasvalid())
             {
@@ -121,7 +141,7 @@ namespace Patterson
             if (checkBox1.Checked)
             {
                 double lambda2 = double.Parse(textBox4.Text);
-                return (2*lambda1+ lambda2)/3;
+                return (2 * lambda1 + lambda2) / 3;
             }
             return lambda1;
         }
@@ -129,9 +149,19 @@ namespace Patterson
         private bool Lambdasvalid()
         {
             bool isLambda1Valid = double.TryParse(textBox3.Text, out double lambda1);
+            if (lambda1 <= 0)
+            {
+                MessageBox.Show("Lambda must be greater than zero.");
+                return false;
+            }
             if (checkBox1.Checked)
             {
                 bool isLambda2Valid = double.TryParse(textBox4.Text, out double lambda2);
+                if (lambda2 <= 0)
+                {
+                    MessageBox.Show("Lambda must be greater than zero.");
+                    return false;
+                }
                 return (isLambda1Valid && isLambda2Valid);
             }
             return isLambda1Valid;
@@ -186,7 +216,7 @@ namespace Patterson
 
         private void PopulateComboBox()
         {
-            string[] metalElements = { "Cu", "Fe", "Au", "Ag","Sn","Zn","Ni","Fe","Pb","Mn","Al" };
+            string[] metalElements = pattersonFunctionService.GetAllElementNames();
             comboBox1.Items.AddRange(metalElements);
         }
 
@@ -201,6 +231,10 @@ namespace Patterson
             textBox2.Text = "120";
             textBox3.Text = "";
             textBox4.Text = "";
+            textBox5.Visible = true;
+            textBox5.Text = "";
+            comboBox1.Visible = true;
+            label3.Visible = true;
         }
 
 
@@ -226,14 +260,20 @@ namespace Patterson
 
         public void UploadPostExposurePicButtonHandler()
         {
+            isPostExposure = true;
             this.Show();
             pictureBox.Image = null;
-            DisableParametersChange();
+            textBox5.Visible = false;
+            comboBox1.Visible = false;
+            label3.Visible = false;
+            // DisableParametersChange();
             execute.Visible = false;
         }
 
         public void UploadNewSamplePicButtonHandler()
         {
+            currentExperiment = null;
+            isPostExposure = false;
             this.Show();
             ResetForm();
             UnlockParametersChange();

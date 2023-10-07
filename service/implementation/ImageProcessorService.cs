@@ -6,7 +6,6 @@ namespace Patterson.service.implementation
 {
     internal class ImageProcessorService : IImageProcessorService
     {
-
         public Image originalImage;
 
         private int graphEndX;
@@ -18,8 +17,8 @@ namespace Patterson.service.implementation
         private static readonly double TITLE_BLOCK_WIDTH_THRESHOLD_PERCENTAGE = 0.7;
         private static readonly double TITLE_BLOCK_HEIGHT_THRESHOLD_PERCENTAGE = 0.2;
 
-        private static readonly double MIN_INTENSITY_THRESHOLD = 8;
-        private static readonly double NOISE_PIXEL_THRESHOLD_PERCENTAGE = 0.15;
+        private static readonly double MIN_INTENSITY_THRESHOLD = 5;
+        private static readonly double NOISE_PIXEL_THRESHOLD_PERCENTAGE = 0.1;
         private static readonly int LINE_PIXEL_THRESHOLD = 40;
 
         private static readonly int BLACK_LINE_WIDTH = 3;
@@ -43,9 +42,8 @@ namespace Patterson.service.implementation
 
         private void TrimTitleBlock(Bitmap image)
         {
-            int startX = (int) (TITLE_BLOCK_WIDTH_THRESHOLD_PERCENTAGE * graphEndX);
-            int endY = (int) (TITLE_BLOCK_HEIGHT_THRESHOLD_PERCENTAGE * image.Height);
-
+            int startX = (int)(TITLE_BLOCK_WIDTH_THRESHOLD_PERCENTAGE * graphEndX);
+            int endY = (int)(TITLE_BLOCK_HEIGHT_THRESHOLD_PERCENTAGE * image.Height);
 
             for (int x = startX; x < graphEndX; x++)
             {
@@ -60,7 +58,7 @@ namespace Patterson.service.implementation
         {
             int thetaStartX = ConvertThetaToPix(minTheta);
 
-            int noiseThreshold = (int)((graphEndX-thetaStartX) * NOISE_PIXEL_THRESHOLD_PERCENTAGE);
+            int noiseThreshold = (int)((graphEndX - thetaStartX) * NOISE_PIXEL_THRESHOLD_PERCENTAGE);
             int baseLineHeight = -1;
 
             bool withinNoiseLevel = false;
@@ -101,7 +99,7 @@ namespace Patterson.service.implementation
 
             HashSet<int> ignoreXs = new HashSet<int>();
 
-            for (int y = 0; y < baseLineY; y++)
+            for (int y = 0; y < baseLineY + 7; y++)
             {
                 for (int x = startSearchPixX; x < endSearchPixX; x++)
                 {
@@ -112,7 +110,7 @@ namespace Patterson.service.implementation
                         if (pixelColor.R != 255 && pixelColor.G != 255 && pixelColor.B != 255)
                         {
                             double theta = ConvertPixToTheta(x);
-                            double intensity = baseLineY - y;
+                            double intensity = baseLineY - y + 7;
                             if (intensity < MIN_INTENSITY_THRESHOLD)
                             {
                                 continue;
@@ -143,7 +141,7 @@ namespace Patterson.service.implementation
 
         private double ConvertPixToTheta(int pixel)
         {
-            return ((double) pixel / graphEndX) * (MAX_THETA - MIN_THETA) + MIN_THETA;
+            return ((double)pixel / graphEndX) * (MAX_THETA - MIN_THETA) + MIN_THETA;
 
         }
 
@@ -167,7 +165,7 @@ namespace Patterson.service.implementation
 
             for (int x = 0; x < image.Width; x++)
             {
-                for (int y = 0; y < image.Height; y++) 
+                for (int y = 0; y < image.Height; y++)
                 {
                     Color pixelColor = image.GetPixel(x, y);
 
@@ -184,7 +182,7 @@ namespace Patterson.service.implementation
                             {
                                 while (pixelColor.R != 255 && pixelColor.G != 255 && pixelColor.B != 255)
                                 {
-                                    y++;                     
+                                    y++;
                                     pixelColor = image.GetPixel(x, y);
                                 }
                                 lineStartX += BLACK_LINE_WIDTH;
@@ -203,7 +201,7 @@ namespace Patterson.service.implementation
                                     }
                                 }
                                 image = trimmedImage;
-                                return; 
+                                return;
                             }
                         }
                     }

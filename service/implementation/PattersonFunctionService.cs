@@ -1,36 +1,40 @@
 ﻿using Patterson.model;
-using Patterson.utils;
+using Patterson.repository;
+using Patterson.repository.implementation;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static Patterson.utils.MathUtils;
 
 namespace Patterson.service.implementation
 {
     internal class PattersonFunctionService : IPattersonFunctionService
     {
+        private readonly IMainRepository repository = new MainRepository();
 
 
-        public Sample Execute(List<PeakData> peaks, double lambda)
+        public Sample Execute(List<PeakData> peaks, double lambda, Experiment experiment, bool isPostExposed)
         {
-            Sample sample = new Sample(peaks);
+            Sample sample = new Sample()
+            {
+                peaksData = peaks,
+                experiment = experiment
+            };
             CalculateParams(sample.peaksData, lambda);
-            sample.ps = CalculatePs(sample.peaksData);
+            sample.ps = CalculatePs(sample.peaksData, experiment.Element.deltaR);
+            FillOutAdditionalInfo(sample, experiment, isPostExposed);
             return sample;
-            
+
         }
 
-        private List<double> CalculatePs(List<PeakData> peaksData)
+        private List<double> CalculatePs(List<PeakData> peaksData, double deltaR)
         {
             List<double> ps = new List<double>();
-            for (double i = 1.0; i <= 10.0 + double.Epsilon; i += 0.1)
+            for (double i = 1.0; i <= 10.0 + double.Epsilon; i += deltaR)
             {
                 double sum = 0;
                 foreach (var peak in peaksData)
                 {
-                    double term = Math.Sin(2 * Math.PI * peak.inverseD * i) * peak.fSquared / (2 * Math.PI * peak.inverseD * i);
+                    double term = Math.Sin(2 * Math.PI * peak.OneOverD * i) * peak.FSquared / (2 * Math.PI * peak.OneOverD * i);
                     sum += term;
                 }
                 ps.Add(sum);
@@ -51,7 +55,7 @@ namespace Patterson.service.implementation
         {
             foreach (var peak in peaksData)
             {
-                peak.dn = lambda / 2 / peak.sinThetta;
+                peak.DOverN = lambda / 2 / peak.sinThetta;
             }
         }
 
@@ -59,7 +63,7 @@ namespace Patterson.service.implementation
         {
             foreach (var peak in peaksData)
             {
-                peak.inverseD = 1 / peak.dn;
+                peak.OneOverD = 1 / peak.DOverN;
             }
         }
 
@@ -67,7 +71,7 @@ namespace Patterson.service.implementation
         {
             foreach (var peak in peaksData)
             {
-                peak.fSquared = peak.intensity / peak.plg;
+                peak.FSquared = peak.Intensity / peak.Plg;
             }
         }
 
@@ -75,7 +79,7 @@ namespace Patterson.service.implementation
         {
             foreach (var peak in peaksData)
             {
-                peak.plg = (1 + Squared(Math.Cos(ToRads(peak.theta)))) / (Math.Sin(ToRads(peak.theta)));
+                peak.Plg = (1 + Squared(Math.Cos(ToRads(peak.DoubleTheta)))) / (Math.Sin(ToRads(peak.DoubleTheta)));
             }
         }
 
@@ -83,9 +87,45 @@ namespace Patterson.service.implementation
         {
             foreach (var peak in peaksData)
             {
-                peak.sinThetta = Math.Sin(ToRads(peak.theta / 2));
+                peak.sinThetta = Math.Sin(ToRads(peak.DoubleTheta / 2));
             }
         }
 
+        private void FillOutAdditionalInfo(Sample sample, Experiment experiment, bool isPostExposed)
+        {
+            for (int i = 0; i < sample.peaksData.Count; i++)
+            {
+                PeakData peakData = sample.peaksData[i];
+                peakData.PeakId = i;
+                peakData.Experiment = experiment;
+                peakData.ExperimentId = experiment.Id;
+                peakData.IsUvExposed = isPostExposed;
+            }
+        }
+
+        public void InitializeDB()
+        {
+            repository.InitializeDB();
+        }
+
+        public Element FindElementByName(string name)
+        {
+            return repository.FindElementByName(name);
+        }
+
+        public Experiment CreateNewExperiment(Element element)
+        {
+            return repository.CreateNewExperiment(element);
+        }
+
+        public string[] GetAllElementNames()
+        {
+            return repository.GetAllElementNames();
+        }
+
+        public void SaveData(Sample sample)
+        {
+            repository.SaveData(sample);
+        }
     }
 }

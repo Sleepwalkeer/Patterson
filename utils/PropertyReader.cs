@@ -1,23 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Patterson.utils
+﻿namespace Patterson.utils
 {
+    using Patterson.exception;
+    using Patterson.model;
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Windows.Forms;
 
     public static class PropertyReader
     {
         private static Dictionary<string, string> properties = new Dictionary<string, string>();
         private const string FILE_PATH = "applicationProperties.txt";
+        private const string ELEMENTS_FILE_PATH = "elements.txt";
 
         static PropertyReader()
         {
             LoadProperties(FILE_PATH);
+        }
+
+        public static List<Element> getAllElements()
+        {
+            try
+            {
+                string[] lines = File.ReadAllLines(ELEMENTS_FILE_PATH);
+                List<Element> elements = new List<Element>();
+
+                foreach (string line in lines)
+                {
+                    string[] parts = line.Split(' ');
+                    if (parts.Length == 2)
+                    {
+                        string name = parts[0].Trim();
+                        double deltaR = Double.Parse(parts[1].Trim());
+                        elements.Add(new Element(name, deltaR));
+                    }
+                }
+                return elements;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("There was an error getting list of elements from property file.");
+                throw new PropertyParsingException(ex.Message);
+            }
         }
 
         public static void LoadProperties(string filePath)
@@ -39,7 +63,8 @@ namespace Patterson.utils
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error reading properties file: " + ex.Message);
+                Console.WriteLine("Error reading property file");
+                throw new PropertyParsingException(ex.Message);
             }
         }
 

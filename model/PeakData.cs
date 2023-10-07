@@ -1,31 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Patterson.model
 {
+    [Table("peak_data", Schema = "public")]
     public class PeakData
     {
-        public double intensity { get; set; }
-        public double theta { get; set; }
+
+
+        [Key, Column("experiment_id", Order = 1)]
+        public Guid ExperimentId { get; set; }
+
+        [ForeignKey("ExperimentId")]
+        public Experiment Experiment { get; set; }
+
+        [Key, Column("is_uv_exposed", Order = 2)]
+        public bool IsUvExposed { get; set; }
+
+
+        [Key, Column("peak_id", Order = 3)]
+        public int PeakId { get; set; }
+
+        [Column("intensity")]
+        public double Intensity { get; set; }
+
+        [Column("double_theta")]
+        public double DoubleTheta { get; set; }
+
+        [Column("plg")]
+        public double Plg { get; set; }
+
+        [Column("f_squared")]
+        public double FSquared { get; set; }
+
+        [Column("d_over_n")]
+        public double DOverN { get; set; }
+
+        [Column("one_over_d")]
+        public double OneOverD { get; set; }
+
+        [NotMapped]
         public double sinThetta { get; set; }
-        public double dn { get; set; }
-        public double plg { get; set; }
-        public double fSquared { get; set; }
-        public double inverseD { get; set; }
+
 
         public PeakData(double intensity, double thetta)
         {
-            this.intensity = intensity;
-            this.theta = thetta;
+            this.Intensity = intensity;
+            this.DoubleTheta = thetta;
         }
 
         public static List<PeakData> SortByTheta(List<PeakData> peakList)
         {
             // Use LINQ to sort the list by the Theta field
-            List<PeakData> sortedList = peakList.OrderBy(peak => peak.theta).ToList();
+            List<PeakData> sortedList = peakList.OrderBy(peak => peak.DoubleTheta).ToList();
 
             return sortedList;
         }
