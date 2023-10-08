@@ -20,7 +20,7 @@ Iron 0.02
 Cobalt 0.01
 Nickel 0.06
 Gold 0.10
-Copper 0.10	
+Copper 0.10
 Zinc 0.24
 Gallium 0.25
 Germanium 0.20

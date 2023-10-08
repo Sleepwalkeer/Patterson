@@ -121,9 +121,9 @@ namespace Patterson.repository.implementation
                         cmd.CommandText = "CREATE TABLE patterson_peak (" +
                    "exp_id uuid, " +
                    "is_uv_exposed BOOLEAN, " +
-                   "peak_id INT, " +
+                   "u DOUBLE PRECISION, " +
                    "pu DOUBLE PRECISION, " +
-                   "PRIMARY KEY (exp_id, is_uv_exposed, peak_id, pu), " +
+                   "PRIMARY KEY (exp_id, is_uv_exposed, u, pu), " +
                    "FOREIGN KEY (exp_id) REFERENCES experiment(id));";
 
                         cmd.ExecuteNonQuery();
@@ -167,7 +167,8 @@ namespace Patterson.repository.implementation
 
         public void SaveData(Sample sample)
         {
-            peakDataRepository.SavePeakData(sample.peaksData);
+            peakDataRepository.SaveData(sample.peaksData);
+            pattersonPeakRepository.SaveData(sample.pattersonPeaks);
         }
 
         public Element FindElementByName(String name)

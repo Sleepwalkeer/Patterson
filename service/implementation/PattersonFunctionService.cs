@@ -17,38 +17,38 @@ namespace Patterson.service.implementation
             Sample sample = new Sample()
             {
                 peaksData = peaks,
-                experiment = experiment
+                experiment = experiment,
+                pattersonPeaks = new List<PattersonPeak>()
             };
-            CalculateParams(sample.peaksData, lambda);
-            sample.ps = CalculatePs(sample.peaksData, experiment.Element.deltaR);
+            CalculateParams(sample, lambda);
             FillOutAdditionalInfo(sample, experiment, isPostExposed);
             return sample;
 
         }
 
-        private List<double> CalculatePs(List<PeakData> peaksData, double deltaR)
+        private void CalculatePattersonPeaks(Sample sample)
         {
             List<double> ps = new List<double>();
-            for (double i = 1.0; i <= 10.0 + double.Epsilon; i += deltaR)
+            for (double i = 1.0; i <= 10.0 + double.Epsilon; i += sample.experiment.Element.deltaR)
             {
                 double sum = 0;
-                foreach (var peak in peaksData)
+                foreach (var peak in sample.peaksData)
                 {
                     double term = Math.Sin(2 * Math.PI * peak.OneOverD * i) * peak.FSquared / (2 * Math.PI * peak.OneOverD * i);
                     sum += term;
                 }
-                ps.Add(sum);
+                sample.pattersonPeaks.Add(new PattersonPeak(i, sum));
             }
-            return ps;
         }
 
-        private void CalculateParams(List<PeakData> peaksData, double lambda)
+        private void CalculateParams(Sample sample, double lambda)
         {
-            CalculateSinThetta(peaksData);
-            CalculateDn(peaksData, lambda);
-            CalculatePlg(peaksData);
-            CalculateFsquared(peaksData);
-            CalculateInverseDs(peaksData);
+            CalculateSinThetta(sample.peaksData);
+            CalculateDn(sample.peaksData, lambda);
+            CalculatePlg(sample.peaksData);
+            CalculateFsquared(sample.peaksData);
+            CalculateInverseDs(sample.peaksData);
+            CalculatePattersonPeaks(sample);
         }
 
         private void CalculateDn(List<PeakData> peaksData, double lambda)
@@ -100,6 +100,13 @@ namespace Patterson.service.implementation
                 peakData.Experiment = experiment;
                 peakData.ExperimentId = experiment.Id;
                 peakData.IsUvExposed = isPostExposed;
+            }
+
+            foreach (var pattersonPeak in sample.pattersonPeaks)
+            {
+                pattersonPeak.Experiment = experiment;
+                pattersonPeak.ExperimentId = experiment.Id;
+                pattersonPeak.IsUvExposed = isPostExposed;
             }
         }
 

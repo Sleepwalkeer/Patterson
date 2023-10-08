@@ -25,22 +25,23 @@ namespace Patterson
         public void PlotChart(Sample sample)
         {
 
+           
             List<double> ps = sample.ps;
 
 
-            Series series = new Series(sample.experiment.Element.Name + " pre Ps");
+            Series series = new Series(sample.experiment.Element.Name + " pre exposed");
             if (isPostPicUploaded)
             {
-                series = new Series(sample.experiment.Element.Name + " post Ps")
+                series = new Series(sample.experiment.Element.Name + " post exposed")
                 {
                     Color = Color.Red
                 };
             }
             series.ChartType = SeriesChartType.Line;
 
-            for (int i = 0; i < ps.Count; i++)
+            for (int i = 0; i < sample.pattersonPeaks.Count; i++)
             {
-                series.Points.AddXY(i, ps[i]);
+                series.Points.AddXY(i, sample.pattersonPeaks[i].Pu);
             }
             chart1.Series.Add(series);
         }

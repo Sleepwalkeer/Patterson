@@ -15,7 +15,7 @@ namespace Patterson.repository.implementation
         {
             this.context = context;
         }
-        public void SavePeakData(List<PeakData> peaksData)
+        public void SaveData(List<PeakData> peaksData)
         {
             try
             {
@@ -28,7 +28,6 @@ namespace Patterson.repository.implementation
                     MessageBox.Show("An error occurred while saving peaks data" + ex.Message);
                     throw new PeakDataSavingException(ex.Message);
             }
-
         }
     }
 }

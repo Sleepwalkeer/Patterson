@@ -5,6 +5,6 @@ namespace Patterson.repository
 {
     public interface IPeakDataRepository
     {
-        void SavePeakData(List<PeakData> peaksData);
+        void SaveData(List<PeakData> peaksData);
     }
 }
