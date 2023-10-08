@@ -1,9 +1,9 @@
-﻿using Patterson.model;
+﻿using Patterson.exception;
+using Patterson.model;
 using Patterson.persistence;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
-using Patterson.exception;
 
 namespace Patterson.repository.implementation
 {
@@ -25,8 +25,8 @@ namespace Patterson.repository.implementation
             }
             catch (Exception ex)
             {
-                    MessageBox.Show("An error occurred while saving peaks data" + ex.Message);
-                    throw new PeakDataSavingException(ex.Message);
+                MessageBox.Show("An error occurred while saving peaks data" + ex.Message);
+                throw new PeakDataSavingException(ex.Message);
             }
         }
     }

@@ -34,7 +34,7 @@ namespace Patterson
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occured while uploading the picture. Please, try again or choose another picture.");
+                MessageBox.Show("An error occured while uploading the picture. Please, try again or choose another picture." + ex.Message);
             }
         }
 
@@ -86,19 +86,6 @@ namespace Patterson
                 double minTheta = thetas.Value.minTheta;
                 double maxTheta = thetas.Value.maxTheta;
                 peaks = imageProcessorService.ProcessImage(minTheta, maxTheta);
-                //peaks = new List<PeakData>();
-                //PeakData peak1 = new PeakData(14.6766, 35.25);
-                //PeakData peak2 = new PeakData(164.0836, 38.5);
-                //PeakData peak3 = new PeakData(20.4399, 39.5);
-                //PeakData peak4 = new PeakData(40.0695, 53);
-                //PeakData peak5 = new PeakData(10.5444, 68);
-                //PeakData peak6 = new PeakData(58.2954, 70.75);
-                //peaks.Add(peak1);
-                //peaks.Add(peak2);
-                //peaks.Add(peak3);
-                //peaks.Add(peak4);
-                //peaks.Add(peak5);
-                //peaks.Add(peak6);
 
                 if (currentExperiment == null)
                 {
@@ -266,7 +253,6 @@ namespace Patterson
             textBox5.Visible = false;
             comboBox1.Visible = false;
             label3.Visible = false;
-            // DisableParametersChange();
             execute.Visible = false;
         }
 

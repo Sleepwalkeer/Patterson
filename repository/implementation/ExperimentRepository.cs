@@ -25,12 +25,12 @@ namespace Patterson.repository.implementation
                 experimentDbSet.Add(experiment);
                 context.SaveChanges();
                 return experiment;
-        }
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("An error occurred while creating a new experiment" + ex.Message);
                 throw new ExperimentCreatingException(ex.Message);
-    }
-}
+            }
+        }
     }
 }

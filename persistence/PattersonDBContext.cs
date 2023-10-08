@@ -9,9 +9,13 @@ namespace Patterson.persistence
         public PattersonDBContext() : base(SetConnectionString()) { }
 
         public DbSet<Element> Elements { get; set; }
+
         public DbSet<Experiment> Experiments { get; set; }
+
         public DbSet<PattersonPeak> PattersonPeaks { get; set; }
+
         public DbSet<PeakData> PeakDataList { get; set; }
+
 
         private static string SetConnectionString()
         {

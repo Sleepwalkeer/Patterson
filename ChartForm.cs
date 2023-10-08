@@ -1,6 +1,4 @@
-﻿using Npgsql;
-using Patterson.model;
-using Patterson.utils;
+﻿using Patterson.model;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,8 +9,6 @@ namespace Patterson
 {
     public partial class ChartForm : Form
     {
-        //NOT SURE IF NEEDED
-        private Sample sample;
         private Form1 startForm;
         private bool isPostPicUploaded;
 
@@ -24,11 +20,6 @@ namespace Patterson
 
         public void PlotChart(Sample sample)
         {
-
-           
-            List<double> ps = sample.ps;
-
-
             Series series = new Series(sample.experiment.Element.Name + " pre exposed");
             if (isPostPicUploaded)
             {

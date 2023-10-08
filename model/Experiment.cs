@@ -7,14 +7,6 @@ namespace Patterson.model
     [Table("experiment", Schema = "public")]
     public class Experiment
     {
-        public Experiment(Guid id, DateTime date, Element element)
-        {
-            Id = id;
-            Date = date;
-            ElementId = element.Id;
-            Element = element;
-        }
-
         [Column("id")]
         public Guid Id { get; set; }
 
@@ -30,5 +22,13 @@ namespace Patterson.model
 
         [ForeignKey("ElementId")]
         public Element Element { get; set; }
+
+        public Experiment(Guid id, DateTime date, Element element)
+        {
+            Id = id;
+            Date = date;
+            ElementId = element.Id;
+            Element = element;
+        }
     }
 }

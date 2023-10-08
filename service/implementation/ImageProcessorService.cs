@@ -133,7 +133,6 @@ namespace Patterson.service.implementation
             return PeakData.SortByTheta(peaks);
         }
 
-
         private int ConvertThetaToPix(double theta)
         {
             return (int)(((theta - MIN_THETA) / (MAX_THETA - MIN_THETA)) * graphEndX);
@@ -213,7 +212,6 @@ namespace Patterson.service.implementation
                 }
             }
         }
-
 
         public void TrimBottomSide(Bitmap image)
         {

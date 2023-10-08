@@ -9,8 +9,6 @@ namespace Patterson.model
     [Table("peak_data", Schema = "public")]
     public class PeakData
     {
-
-
         [Key, Column("experiment_id", Order = 1)]
         public Guid ExperimentId { get; set; }
 
@@ -19,7 +17,6 @@ namespace Patterson.model
 
         [Key, Column("is_uv_exposed", Order = 2)]
         public bool IsUvExposed { get; set; }
-
 
         [Key, Column("peak_id", Order = 3)]
         public int PeakId { get; set; }
@@ -54,7 +51,6 @@ namespace Patterson.model
 
         public static List<PeakData> SortByTheta(List<PeakData> peakList)
         {
-            // Use LINQ to sort the list by the Theta field
             List<PeakData> sortedList = peakList.OrderBy(peak => peak.DoubleTheta).ToList();
 
             return sortedList;
