@@ -4,6 +4,6 @@ namespace Patterson.repository
 {
     public interface IExperimentRepository
     {
-        Experiment CreateNewExperiment(Element element);
+        Experiment CreateNewExperiment(Element element, string description);
     }
 }

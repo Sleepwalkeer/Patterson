@@ -5,11 +5,9 @@ namespace Patterson.repository
     public interface IMainRepository
     {
         void SaveData(Sample sample);
-        void InitializeDB();
-
         Element FindElementByName(string name);
 
-        Experiment CreateNewExperiment(Element element);
+        Experiment CreateNewExperiment(Element element, string description);
 
         string[] GetAllElementNames();
     }

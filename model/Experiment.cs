@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Patterson.model
 {
-    [Table("experiment", Schema = "public")]
+    [Table("experiment")]
     public class Experiment
     {
         [Column("id")]
@@ -23,12 +23,13 @@ namespace Patterson.model
         [ForeignKey("ElementId")]
         public Element Element { get; set; }
 
-        public Experiment(Guid id, DateTime date, Element element)
+        public Experiment(Guid id, DateTime date, Element element, string description)
         {
             Id = id;
             Date = date;
             ElementId = element.Id;
             Element = element;
+            Description = description;
         }
     }
 }

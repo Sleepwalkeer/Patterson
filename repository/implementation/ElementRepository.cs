@@ -16,28 +16,12 @@ namespace Patterson.repository.implementation
         public ElementRepository(PattersonDBContext context)
         {
             this.context = context;
-        }
 
-        public void Populate()
-        {
-            try
-            {
-                List<Element> elements = PropertyReader.getAllElements();
-                var elementDbSet = context.Elements;
-                elementDbSet.AddRange(elements);
-                context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("an error occurred while populating the element table" + ex.Message);
-                throw new ElementCreatingException(ex.Message);
-            }
         }
 
         public string[] GetAllElementNames()
         {
             string[] elementNames = context.Elements.Select(e => e.Name).ToArray();
-
             return elementNames;
         }
 

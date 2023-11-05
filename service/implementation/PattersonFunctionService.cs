@@ -110,19 +110,15 @@ namespace Patterson.service.implementation
             }
         }
 
-        public void InitializeDB()
-        {
-            repository.InitializeDB();
-        }
 
         public Element FindElementByName(string name)
         {
             return repository.FindElementByName(name);
         }
 
-        public Experiment CreateNewExperiment(Element element)
+        public Experiment CreateNewExperiment(Element element, string description)
         {
-            return repository.CreateNewExperiment(element);
+            return repository.CreateNewExperiment(element, description);
         }
 
         public string[] GetAllElementNames()

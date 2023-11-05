@@ -18,17 +18,8 @@ namespace Patterson.repository
 
         public void SaveData(List<PattersonPeak> pattersonPeaks)
         {
-            try
-            {
-                var elementDbSet = context.PattersonPeaks;
-                elementDbSet.AddRange(pattersonPeaks);
+                context.PattersonPeaks.AddRange(pattersonPeaks);
                 context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error occurred while saving patterson peaks data" + ex.Message);
-                throw new PattersonPeakSavingException(ex.Message);
-            }
         }
     }
 }

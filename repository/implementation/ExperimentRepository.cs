@@ -15,22 +15,12 @@ namespace Patterson.repository.implementation
             this.context = context;
         }
 
-        public Experiment CreateNewExperiment(Element element)
+        public Experiment CreateNewExperiment(Element element, string description)
         {
-            try
-            {
-                Experiment experiment = new Experiment(Guid.NewGuid(), DateTime.Now, element);
-
-                var experimentDbSet = context.Experiments;
-                experimentDbSet.Add(experiment);
+                Experiment experiment = new Experiment(Guid.NewGuid(), DateTime.Now, element, description);
+                context.Experiments.Add(experiment);
                 context.SaveChanges();
                 return experiment;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error occurred while creating a new experiment" + ex.Message);
-                throw new ExperimentCreatingException(ex.Message);
-            }
         }
     }
 }

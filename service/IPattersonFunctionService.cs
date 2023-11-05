@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Patterson.service
 {
-    internal interface IPattersonFunctionService
+    public interface IPattersonFunctionService
     {
         Sample Execute(List<PeakData> peaks, double lambda, Experiment experiment, bool isPostExposed);
 
@@ -11,10 +11,8 @@ namespace Patterson.service
 
         string[] GetAllElementNames();
 
-        Experiment CreateNewExperiment(Element element);
+        Experiment CreateNewExperiment(Element element, string description);
 
         Element FindElementByName(string name);
-
-        void InitializeDB();
     }
 }

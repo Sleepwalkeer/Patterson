@@ -1,8 +1,10 @@
-﻿using Patterson.model;
+﻿using Patterson.Migrations;
+using Patterson.model;
 using Patterson.service;
 using Patterson.service.implementation;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Migrations;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -18,8 +20,8 @@ namespace Patterson
         public Form1()
         {
             InitializeComponent();
-
         }
+
 
         private void uploadPictureButton_Click(object sender, EventArgs e)
         {
@@ -90,8 +92,8 @@ namespace Patterson
                 if (currentExperiment == null)
                 {
                     Element element = pattersonFunctionService.FindElementByName(comboBox1.SelectedItem.ToString());
-                    Experiment experiment = pattersonFunctionService.CreateNewExperiment(element);
-                    experiment.Description = textBox5.Text;
+                    string description = textBox5.Text;
+                    Experiment experiment = pattersonFunctionService.CreateNewExperiment(element, description);
                     currentExperiment = experiment;
                 }
                 else

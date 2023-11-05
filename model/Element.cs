@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Patterson.model
 {
-    [Table("element", Schema = "public")]
+    [Table("element")]
     public class Element
     {
         [Column("id")]
@@ -18,12 +18,14 @@ namespace Patterson.model
         [Column("deltar")]
         public double deltaR { get; set; }
 
-        public Element(string name, double deltaR)        {
+        public Element(string name, double deltaR)
+        {
             this.Name = name;
             this.deltaR = deltaR;
         }
 
-        public Element()        {
+        public Element()
+        {
 
         }
 

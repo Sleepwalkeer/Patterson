@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace Patterson.service
 {
-    internal interface IImageProcessorService
+    public interface IImageProcessorService
     {
         List<PeakData> ProcessImage(double minTheta, double maxTheta);
 

@@ -1,12 +1,16 @@
 ﻿using Patterson.model;
 using Patterson.utils;
 using System.Data.Entity;
+using Microsoft.Extensions.Configuration;
+using System.Configuration;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
+using Npgsql;
 
 namespace Patterson.persistence
 {
     public class PattersonDBContext : DbContext
     {
-        public PattersonDBContext() : base(SetConnectionString()) { }
+        public PattersonDBContext() : base(GetConnectionString()) {}
 
         public DbSet<Element> Elements { get; set; }
 
@@ -14,18 +18,13 @@ namespace Patterson.persistence
 
         public DbSet<PattersonPeak> PattersonPeaks { get; set; }
 
-        public DbSet<PeakData> PeakDataList { get; set; }
+        public DbSet<PeakData> PeaksData { get; set; }
 
 
-        private static string SetConnectionString()
+        private static string GetConnectionString()
         {
-            string host = PropertyReader.GetProperty("Host");
-            int port = int.Parse(PropertyReader.GetProperty("Port"));
-            string database = PropertyReader.GetProperty("Database");
-            string username = PropertyReader.GetProperty("Username");
-            string password = PropertyReader.GetProperty("Password");
-
-            return $"Host={host};Port={port};Database={database};Username={username};Password={password}";
+            string selectedConnectionStringName = ConfigurationManager.AppSettings["SelectedConnectionStringName"];
+            return ConfigurationManager.ConnectionStrings[selectedConnectionStringName].ToString();
         }
     }
 }

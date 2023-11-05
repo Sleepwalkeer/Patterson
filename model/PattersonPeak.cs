@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Patterson.model
 {
-    [Table("patterson_peak", Schema = "public")]
+    [Table("patterson_peak")]
     public class PattersonPeak
     {
         [Key, Column("exp_id", Order = 1)]

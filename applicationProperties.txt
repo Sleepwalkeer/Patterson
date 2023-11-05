@@ -1,5 +1,0 @@
-Host=localhost
-Port=5433
-Database=PattersonDB
-Username=username
-Password=password

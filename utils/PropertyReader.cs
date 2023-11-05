@@ -10,13 +10,8 @@
     public static class PropertyReader
     {
         private static Dictionary<string, string> properties = new Dictionary<string, string>();
-        private const string FILE_PATH = "applicationProperties.txt";
         private const string ELEMENTS_FILE_PATH = "elements.txt";
 
-        static PropertyReader()
-        {
-            LoadProperties(FILE_PATH);
-        }
 
         public static List<Element> getAllElements()
         {

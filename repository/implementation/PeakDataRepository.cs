@@ -17,17 +17,8 @@ namespace Patterson.repository.implementation
         }
         public void SaveData(List<PeakData> peaksData)
         {
-            try
-            {
-                var elementDbSet = context.PeakDataList;
-                elementDbSet.AddRange(peaksData);
+                context.PeaksData.AddRange(peaksData);
                 context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error occurred while saving peaks data" + ex.Message);
-                throw new PeakDataSavingException(ex.Message);
-            }
         }
     }
 }
