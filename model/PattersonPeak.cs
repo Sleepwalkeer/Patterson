@@ -27,5 +27,9 @@ namespace Patterson.model
             this.u = u;
             Pu = pu;
         }
+
+        public PattersonPeak()
+        {
+        }
     }
 }

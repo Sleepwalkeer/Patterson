@@ -1,9 +1,6 @@
-﻿using Patterson.exception;
-using Patterson.model;
+﻿using Patterson.model;
 using Patterson.persistence;
-using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace Patterson.repository.implementation
 {
@@ -17,8 +14,8 @@ namespace Patterson.repository.implementation
         }
         public void SaveData(List<PeakData> peaksData)
         {
-                context.PeaksData.AddRange(peaksData);
-                context.SaveChanges();
+            context.PeaksData.AddRange(peaksData);
+            context.SaveChanges();
         }
     }
 }

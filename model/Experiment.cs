@@ -31,5 +31,9 @@ namespace Patterson.model
             Element = element;
             Description = description;
         }
+
+        public Experiment()
+        {
+        }
     }
 }

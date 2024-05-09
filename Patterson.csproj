@@ -125,6 +125,12 @@
     <Compile Include="ChartForm.Designer.cs">
       <DependentUpon>ChartForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="dataBaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dataBaseForm.Designer.cs">
+      <DependentUpon>dataBaseForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="exception\ElementCreatingException.cs" />
     <Compile Include="exception\ExperimentCreatingException.cs" />
     <Compile Include="exception\PattersonPeakSavingException.cs" />
@@ -165,8 +171,14 @@
     <Compile Include="service\IPattersonFunctionService.cs" />
     <Compile Include="utils\MathUtils.cs" />
     <Compile Include="utils\PropertyReader.cs" />
+    <Compile Include="viewmodel\ChartFormViewModel.cs" />
+    <Compile Include="viewmodel\DataBaseFormViewModel.cs" />
+    <Compile Include="viewmodel\MainFormViewModel.cs" />
     <EmbeddedResource Include="ChartForm.resx">
       <DependentUpon>ChartForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dataBaseForm.resx">
+      <DependentUpon>dataBaseForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

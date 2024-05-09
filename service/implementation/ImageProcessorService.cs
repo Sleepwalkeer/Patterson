@@ -1,4 +1,5 @@
 ﻿using Patterson.model;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -6,123 +7,169 @@ namespace Patterson.service.implementation
 {
     internal class ImageProcessorService : IImageProcessorService
     {
-        public Image originalImage;
+        private Image originalImage;
+        private Image croppedImage;
 
-        private int graphEndX;
-        private int baseLineY;
+        private List<Point> baseline = new List<Point>();
 
         private static readonly int OPTIMAL_DISPLAY_IMAGE_WIDTH = 900;
         private static readonly int OPTIMAL_DISPLAY_IMAGE_HEIGHT = 650;
 
-        private static readonly double TITLE_BLOCK_WIDTH_THRESHOLD_PERCENTAGE = 0.7;
-        private static readonly double TITLE_BLOCK_HEIGHT_THRESHOLD_PERCENTAGE = 0.2;
-
-        private static readonly double MIN_INTENSITY_THRESHOLD = 5;
-        private static readonly double NOISE_PIXEL_THRESHOLD_PERCENTAGE = 0.1;
+        private static readonly double MIN_INTENSITY_THRESHOLD = 10;
         private static readonly int LINE_PIXEL_THRESHOLD = 40;
 
         private static readonly int BLACK_LINE_WIDTH = 3;
 
-        private static readonly int MIN_THETA = 20;
-        private static readonly int MAX_THETA = 120;
+        private static readonly int PIXEL_BRIGHTNESS_THRESHOLD = 127;
 
-        public List<PeakData> ProcessImage(double minTheta, double maxTheta)
+        public List<PeakData> ProcessImage(double minTheta, double maxTheta, Point start, Point end)
         {
-            Bitmap bitmap = new Bitmap(800, 800);
+            CaptureSelectedImageWithoutRectangle(start, end);
+            Bitmap bitmap = new Bitmap(croppedImage.Width, croppedImage.Height);
             Graphics graphics = Graphics.FromImage(bitmap);
             graphics.Clear(Color.White);
-            graphics.DrawImage(originalImage, 0, 0);
+            graphics.DrawImage(croppedImage, 0, 0);
             graphics.Dispose();
-            TrimBottomSide(bitmap);
-            TrimLeftSide(ref bitmap);
-            SetBaseline(bitmap, 33);
+            //TrimBottomSide(bitmap);
+            //TrimLeftSide(ref bitmap);
             TrimTitleBlock(bitmap);
+            SetBaseline(bitmap);
             return findPeaks(bitmap, minTheta, maxTheta);
+        }
+
+        public Image testProcessImage(double minTheta, double maxTheta, Point start, Point end)
+        {
+            CaptureSelectedImageWithoutRectangle(start, end);
+            Bitmap bitmap = new Bitmap(croppedImage.Width, croppedImage.Height);
+            Graphics graphics = Graphics.FromImage(bitmap);
+            graphics.Clear(Color.White);
+            graphics.DrawImage(croppedImage, 0, 0);
+            graphics.Dispose();
+            //TrimBottomSide(bitmap);
+            //TrimLeftSide(ref bitmap)            
+            TrimTitleBlock(bitmap);
+            SetBaseline(bitmap);
+            List<PeakData> peaks = findPeaks(bitmap, minTheta, maxTheta);
+            //peaks.RemoveAt(11);
+            //peaks.RemoveAt(10);
+            //peaks.RemoveAt(9);
+            //peaks.RemoveAt(6);
+            //peaks.RemoveAt(4);
+            //peaks.RemoveAt(3);
+            //peaks.RemoveAt(0);
+            return bitmap;
         }
 
         private void TrimTitleBlock(Bitmap image)
         {
-            int startX = (int)(TITLE_BLOCK_WIDTH_THRESHOLD_PERCENTAGE * graphEndX);
-            int endY = (int)(TITLE_BLOCK_HEIGHT_THRESHOLD_PERCENTAGE * image.Height);
+            int width = image.Width / 2;
+            int height = image.Height / 2;
 
-            for (int x = startX; x < graphEndX; x++)
+            using (Graphics g = Graphics.FromImage(image))
             {
-                for (int y = 0; y < endY; y++)
-                {
-                    image.SetPixel(x, y, Color.White);
-                }
+                Rectangle rectangle = new Rectangle(width, 0, width, height);
+                g.SetClip(rectangle);
+                g.Clear(Color.White);
+                g.ResetClip();
             }
         }
 
-        private void SetBaseline(Bitmap image, double minTheta)
+        private void SetBaseline(Bitmap image)
         {
-            int thetaStartX = ConvertThetaToPix(minTheta);
+            int width = image.Width;
+            int height = image.Height;
+            int baselineHeightIncreaseThreshold = 10;
+            int previousBaselinePoint = 0;
 
-            int noiseThreshold = (int)((graphEndX - thetaStartX) * NOISE_PIXEL_THRESHOLD_PERCENTAGE);
-            int baseLineHeight = -1;
-
-            bool withinNoiseLevel = false;
-
-            for (int y = image.Height - 1; y >= 0; y--)
+            for (int x = 0; x < width-1; x++)
             {
-                int blackPixelCount = 0;
+                int sum = 0;
+                int count = 0;
 
-                for (int x = thetaStartX; x < graphEndX; x++)
+                bool foundGraphStart = false;
+
+                for (int y = height - 1; y >= 0; y--)
                 {
                     Color pixelColor = image.GetPixel(x, y);
 
-                    if (pixelColor.R != 255 || pixelColor.G != 255 || pixelColor.B != 255)
+                    int brightness = (int)(pixelColor.R * 0.3 + pixelColor.G * 0.59 + pixelColor.B * 0.11);
+
+                    if (brightness < PIXEL_BRIGHTNESS_THRESHOLD)
                     {
-                        blackPixelCount++;
+                        foundGraphStart = true;
+                    }
+                    else if (foundGraphStart)
+                    {
+                        break;
+                    }
+
+                    if (foundGraphStart)
+                    {
+                        sum += y;
+                        count++;
                     }
                 }
 
-                if (blackPixelCount >= noiseThreshold)
+                int baselinePoint = (count == 0) ? 0 : sum / count;
+
+                Color nextPixelColor = image.GetPixel(x + 1, baselinePoint);
+
+                int nextPixelbrightness = getBrightness(nextPixelColor);
+
+                if (previousBaselinePoint != 0 && nextPixelbrightness > PIXEL_BRIGHTNESS_THRESHOLD)
                 {
-                    baseLineHeight = y;
-                    withinNoiseLevel = true;
+                    baselinePoint = previousBaselinePoint;
+                }
+                else if (previousBaselinePoint != 0 && baselinePoint < previousBaselinePoint && (Math.Abs(baselinePoint - previousBaselinePoint) > baselineHeightIncreaseThreshold))
+                {
+                        baselinePoint = previousBaselinePoint;
+
                 }
 
-                if (withinNoiseLevel && blackPixelCount < noiseThreshold)
-                {
-                    baseLineY = baseLineHeight;
-                    break;
-                }
+                image.SetPixel(x, baselinePoint, Color.Gold);
+                baseline.Add(new Point(x, baselinePoint));
+                previousBaselinePoint = baselinePoint;
             }
         }
 
         private List<PeakData> findPeaks(Bitmap image, double minTheta, double maxTheta)
         {
             List<PeakData> peaks = new List<PeakData>();
-            int startSearchPixX = ConvertThetaToPix(minTheta);
-            int endSearchPixX = ConvertThetaToPix(maxTheta);
 
             HashSet<int> ignoreXs = new HashSet<int>();
 
-            for (int y = 0; y < baseLineY + 7; y++)
+            for (int y = 0; y < croppedImage.Height-1; y++)
             {
-                for (int x = startSearchPixX; x < endSearchPixX; x++)
+                for (int x = 0; x < image.Width-2; x++)
                 {
                     if (!ignoreXs.Contains(x))
                     {
                         Color pixelColor = image.GetPixel(x, y);
+                        int brightness = getBrightness(pixelColor);
 
-                        if (pixelColor.R != 255 && pixelColor.G != 255 && pixelColor.B != 255)
+                        if (brightness < PIXEL_BRIGHTNESS_THRESHOLD)
                         {
-                            double theta = ConvertPixToTheta(x);
-                            double intensity = baseLineY - y + 7;
+                            double theta = ConvertPixToTheta(x, minTheta, maxTheta);
+                            double intensity = getPeakIntensity(x, y);
                             if (intensity < MIN_INTENSITY_THRESHOLD)
                             {
                                 continue;
                             }
-
-                            for (int q = 0; q < image.Height; q++)
+                            int testY = 0;
+                            foreach (Point point in baseline)
                             {
-                                image.SetPixel(x, q, Color.Red);
+                                if (point.X == x)
+                                {
+                                    testY = point.Y;
+                                }
+                            }
+                            for (int q = y; q < testY; q++)
+                            {
+                                image.SetPixel(x, q, Color.Brown);
                             }
 
                             peaks.Add(new PeakData(intensity, theta));
-                            for (int i = x - 5; i < x + 5; i++)
+                            for (int i = x - 3; i < x + 3; i++)
                             {
                                 ignoreXs.Add(i);
                             }
@@ -133,22 +180,34 @@ namespace Patterson.service.implementation
             return PeakData.SortByTheta(peaks);
         }
 
-        private int ConvertThetaToPix(double theta)
+        private double getPeakIntensity(int x, int y)
         {
-            return (int)(((theta - MIN_THETA) / (MAX_THETA - MIN_THETA)) * graphEndX);
+            foreach (Point point in baseline)
+            {
+                if (point.X == x)
+                {
+                    return point.Y - y;
+                }
+            }
+            return 0;
         }
 
-        private double ConvertPixToTheta(int pixel)
+        private int getBrightness(Color pixelColor)
         {
-            return ((double)pixel / graphEndX) * (MAX_THETA - MIN_THETA) + MIN_THETA;
+            return (int)(pixelColor.R * 0.3 + pixelColor.G * 0.59 + pixelColor.B * 0.11);
+        }
+
+        private double ConvertPixToTheta(int pixel, double minTheta, double maxTheta)
+        {
+            double fraction = (double)pixel / croppedImage.Width;
+            return minTheta + fraction * (maxTheta - minTheta);
 
         }
 
         public Image RenderImage(Image imageToRender)
         {
-            originalImage = imageToRender;
             Image image = ScaleImage(imageToRender, OPTIMAL_DISPLAY_IMAGE_WIDTH, OPTIMAL_DISPLAY_IMAGE_HEIGHT);
-
+            originalImage = image;
             return image;
         }
 
@@ -187,7 +246,6 @@ namespace Patterson.service.implementation
                                 lineStartX += BLACK_LINE_WIDTH;
 
                                 int newWidth = image.Width - lineStartX;
-                                graphEndX -= lineStartX;
                                 int newHeight = y - BLACK_LINE_WIDTH;
 
                                 Bitmap trimmedImage = new Bitmap(newWidth, newHeight);
@@ -240,7 +298,6 @@ namespace Patterson.service.implementation
                                     x++;
                                     pixelColor = image.GetPixel(x, y);
                                 }
-                                graphEndX = x;
 
                                 lineStartY += BLACK_LINE_WIDTH;
 
@@ -267,6 +324,33 @@ namespace Patterson.service.implementation
                     }
                 }
             }
+        }
+        private Bitmap CaptureSelectedAreaWithoutRectangle(Rectangle selectionRect)
+        {
+            Bitmap capturedImage = new Bitmap(selectionRect.Width, selectionRect.Height);
+
+            using (Graphics g = Graphics.FromImage(capturedImage))
+            {
+                Rectangle sourceRect = new Rectangle(selectionRect.X,
+                                                      selectionRect.Y,
+                                                      selectionRect.Width,
+                selectionRect.Height);
+
+                g.DrawImage(originalImage, new Rectangle(0, 0, capturedImage.Width, capturedImage.Height), sourceRect, GraphicsUnit.Pixel);
+            }
+
+            return capturedImage;
+        }
+
+        public void CaptureSelectedImageWithoutRectangle(Point selectionStart, Point selectionEnd)
+        {
+            Rectangle selectionRect = new Rectangle(
+                Math.Min(selectionStart.X, selectionEnd.X),
+                Math.Min(selectionStart.Y, selectionEnd.Y),
+                Math.Abs(selectionStart.X - selectionEnd.X),
+                Math.Abs(selectionStart.Y - selectionEnd.Y));
+
+            croppedImage = CaptureSelectedAreaWithoutRectangle(selectionRect);
         }
     }
 }

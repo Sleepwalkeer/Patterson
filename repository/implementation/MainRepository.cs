@@ -1,9 +1,6 @@
-﻿using Npgsql;
-using Patterson.model;
+﻿using Patterson.model;
 using Patterson.persistence;
-using Patterson.utils;
 using System;
-using System.Configuration;
 using System.Data.Entity.Migrations;
 
 namespace Patterson.repository.implementation
